@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: EC2 creada con CloudFormation para clase
+
+Parameters:
+  InstanceDescription:
+    Description: Descripcion del servidor web
+    Type: String
+    Default: Servidor Web Apache
+
+  SecurityGroupDescription:
+    Description: Security Group Description
+    Type: String
+    Default: Acceso HTTP al servidor
+
+Resources:
+  ServerSecurityGroupClase:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Ref SecurityGroupDescription
+      Tags:
+        - Key: Name
+          Value: SG-HTTP-Clase-CF
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  MyInstanceClase:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0236922087fa98b6e
+      InstanceType: t3.micro
+      SecurityGroupIds:
+        - !GetAtt ServerSecurityGroupClase.GroupId
+      Tags:
+        - Key: Name
+          Value: EC2-Clase-CF
+        - Key: Proyecto
+          Value: Class-CloudFormation
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          echo "<html><body>
+          <h1>${InstanceDescription} 👏</h1>
+          <h2>Hola desde CloudFormation con GitHub 🚀</h2>
+          </body></html>" > /var/www/html/index.html
+
+Outputs:
+  InstanceId:
+    Description: ID de la instancia EC2 creada
+    Value: !Ref MyInstanceClase
+
+  PublicIP:
+    Description: IP publica de la instancia EC2
+    Value: !GetAtt MyInstanceClase.PublicIp
+
+  WebsiteURL:
+    Description: URL del servidor web Apache
+    Value: !Sub "http://${MyInstanceClase.PublicDnsName}"
