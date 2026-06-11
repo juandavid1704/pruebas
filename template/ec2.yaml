@@ -47,7 +47,7 @@ Resources:
           systemctl enable httpd
           echo "<html><body>
           <h1>${InstanceDescription} 👏</h1>
-          <h2>Hola desde CloudFormation con GitHub 🚀</h2>
+          <h2>Hola Mundo, soy Laurita 🚀</h2>
           </body></html>" > /var/www/html/index.html
 
 Outputs:
